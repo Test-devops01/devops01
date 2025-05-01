@@ -1,0 +1,31 @@
+name: 🚀 Deploy to Development
+
+# запускається автоматично при пуші в галузь dev
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --no-progress
+          npm ci && npm run build
+
+      - name: Deploy to Dev Server
+        run: |
+          rsync -avz -e "ssh -p 9822" --delete . gituser@212.1.100.182:/var/www/vbox
+          ssh -p 9822 gituser@212.1.100.182 "cd /var/www/magento-dev && bin/magento setup:upgrade && bin/magento cache:flush"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_KEY }}
