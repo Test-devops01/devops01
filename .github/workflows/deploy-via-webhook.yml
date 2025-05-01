@@ -1,0 +1,21 @@
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  notify-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send deploy webhook
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.DEPLOY_HOOK_URL }}
+          method: POST
+          headers: |
+            Content-Type: application/json
+            X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}
+          body: |
+            {
+              "ref": "${{ github.ref }}",
+              "repository": "${{ github.repository }}"
+            }
