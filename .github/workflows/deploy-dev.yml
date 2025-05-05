@@ -22,7 +22,7 @@ jobs:
 
       - name: Pull latest code on server
         run: |
-          ssh -p 9822 gituser@212.1.100.182 << 'EOF'
+          ssh -p 9822 root@212.1.100.182 << 'EOF'
             cd /var/www/vbox
             # Переключитись на гілку dev (якщо ще не на ній)
             git checkout dev
