@@ -1,7 +1,9 @@
 ############################################
 ## Optional override of deployment mode. We recommend you use the
 ## command bin/magento deploy:mode:set to switch modes instead
-test test
+=======
+## test test coment
+>>>>>>> 4d41d1d08 (Add .gitignore to ignore build artifacts and vendor files)
 # Options are default, production, or developer
 #   SetEnv MAGE_MODE default
 

@@ -1,31 +1,42 @@
-name: 🚀 Deploy to Development
+name: Deploy to Dev Server01
 
-# запускається автоматично при пуші в галузь dev
 on:
   push:
     branches:
       - dev
 
 jobs:
-  deploy-dev:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up PHP 8.3
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.3
+          php-version: '8.3'
+          extensions: mbstring, intl, xsl, zip
+          tools: composer:v2
 
-      - name: Install dependencies
-        run: |
-          composer install --no-interaction --no-progress
-          npm ci && npm run build
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
 
-      - name: Deploy to Dev Server
+      - name: Prepare SSH
         run: |
-          rsync -avz -e "ssh -p 9822" --delete . gituser@212.1.100.182:/var/www/vbox
-          ssh -p 9822 gituser@212.1.100.182 "cd /var/www/magento-dev && bin/magento setup:upgrade && bin/magento cache:flush"
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_KEY }}
+          mkdir -p ~/.ssh
+          ssh-keyscan -p 9822 -H 212.1.100.182 >> ~/.ssh/known_hosts
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEV_SSH_KEY }}
+
+      - name: Deploy via rsync and run Magento commands
+        run: |
+          rsync -avz --delete -e "ssh -p 9822" . gituser@212.1.100.182:/var/www/vbox
+          ssh -p 9822 gituser@212.1.100.182 << 'EOF'
+            cd /var/www/vbox
+            bin/magento setup:upgrade
+            bin/magento cache:flush
+          EOF
