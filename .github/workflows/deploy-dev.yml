@@ -1,4 +1,4 @@
-name: Deploy to Dev Server01
+name: Deploy to Dev Server
 
 on:
   push:
@@ -9,34 +9,23 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Create .ssh directory
+        run: mkdir -p ~/.ssh
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: mbstring, intl, xsl, zip
-          tools: composer:v2
-
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction
-
-      - name: Prepare SSH
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -p 9822 -H 212.1.100.182 >> ~/.ssh/known_hosts
+      - name: Add server to known_hosts
+        run: ssh-keyscan -p 9822 -H 212.1.100.182 >> ~/.ssh/known_hosts
 
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DEV_SSH_KEY }}
 
-      - name: Deploy via rsync and run Magento commands
+      - name: Pull latest code on server
         run: |
-          rsync -avz --delete -e "ssh -p 9822" . gituser@212.1.100.182:/var/www/vbox
           ssh -p 9822 gituser@212.1.100.182 << 'EOF'
             cd /var/www/vbox
-            bin/magento setup:upgrade
-            bin/magento cache:flush
+            # Переключитись на гілку dev (якщо ще не на ній)
+            git checkout dev
+            # Забрати актуальні зміни з віддаленого репозиторію
+            git pull origin dev
           EOF
