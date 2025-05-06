@@ -17,8 +17,10 @@ jobs:
 
       - name: Add server to known_hosts
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+             mkdir -p ~/.ssh
+             chmod 700 ~/.ssh
+             ssh-keyscan -H -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+             chmod 644 ~/.ssh/known_hosts
 
       - name: Pull & run update script on server
         run: |
