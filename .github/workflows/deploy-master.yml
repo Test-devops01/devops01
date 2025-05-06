@@ -22,4 +22,4 @@ jobs:
         run: |
           ssh -p ${{ secrets.SERVER_SSH_PORT }} \
             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "/usr/local/bin/magento_deploy.sh master /var/www/vbox"
+            "/usr/local/bin/magento_deploy.sh dev /var/www/vbox"
