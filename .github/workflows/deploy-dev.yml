@@ -7,7 +7,7 @@ jobs:
   deploy-dev:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code (для контексту)
+      - name: Checkout code (для контексту1)
         uses: actions/checkout@v3
 
       - name: Start ssh-agent and add key
