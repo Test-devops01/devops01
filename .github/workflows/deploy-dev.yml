@@ -1,31 +1,28 @@
-name: Deploy to Dev Server
-
 on:
   push:
     branches:
       - dev
 
 jobs:
-  deploy:
+  deploy-dev:
     runs-on: ubuntu-latest
     steps:
-      - name: Create .ssh directory
-        run: mkdir -p ~/.ssh
+      - name: Checkout code (для контексту)
+        uses: actions/checkout@v3
 
-      - name: Add server to known_hosts
-        run: ssh-keyscan -p 9822 -H 212.1.100.182 >> ~/.ssh/known_hosts
-
-      - name: Setup SSH agent
+      - name: Start ssh-agent and add key
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DEV_SSH_KEY_01 }}
 
-      - name: Pull latest code on server
+      - name: Add server to known_hosts
         run: |
-          ssh -p 9822 root@212.1.100.182 << 'EOF'
-            cd /var/www/vbox
-            # Переключитись на гілку dev (якщо ще не на ній)
-            git checkout dev
-            # Забрати актуальні зміни з віддаленого репозиторію
-            git pull origin dev
-          EOF
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Pull & run update script on server
+        run: |
+          ssh -p ${{ secrets.SERVER_SSH_PORT }} \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "/usr/local/bin/update_dev.sh"
+            
