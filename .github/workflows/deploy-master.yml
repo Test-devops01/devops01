@@ -1,0 +1,25 @@
+on:
+    workflow_dispatch:
+  
+  jobs:
+    deploy-master:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+  
+        - name: Start ssh-agent
+          uses: webfactory/ssh-agent@v0.9.0
+          with:
+            ssh-private-key: ${{ secrets.MASTER_SSH_KEY_01 }}
+  
+        - name: Add server to known_hosts
+          run: |
+            mkdir -p ~/.ssh
+            ssh-keyscan -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+  
+        - name: Deploy to Master on server
+          run: |
+            ssh -p ${{ secrets.SERVER_SSH_PORT }} \
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+              "/usr/local/bin/magento_deploy.sh master /var/www/vbox"
