@@ -7,10 +7,10 @@ jobs:
   deploy-dev:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code (для контексту)
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Start ssh-agent and add key
+      - name: Start ssh
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DEV_SSH_KEY_01 }}
@@ -20,7 +20,7 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SERVER_SSH_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Pull & run update script on server
+      - name: Run update script on server
         run: |
           ssh -p ${{ secrets.SERVER_SSH_PORT }} \
             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
