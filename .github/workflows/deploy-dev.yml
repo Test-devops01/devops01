@@ -24,5 +24,4 @@ jobs:
         run: |
           ssh -p ${{ secrets.SERVER_SSH_PORT }} \
             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "/usr/local/bin/update_dev.sh"
-            
+            "/usr/local/bin/magento_deploy.sh dev /var/www/vbox"
