@@ -1,0 +1,1 @@
+/var/www/magento2-sample-data-2.4.7-p5/dev/tools/build-sample-data.php
